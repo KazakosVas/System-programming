@@ -1,41 +1,122 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <dirent.h>
+#include <signal.h>
+#include <errno.h>
+
 
 #include "patient.h"
 #include "list.h"
-
 #include "RBTree.h"
-
 #include "Hashtable.h"
 #include "HelpFunctions.h"
+#include "process_synchronization.h"
+
 #include "StatFunctions.h"
+void sig_handler(int signum){
+
+    write(1,  "Inside handler function\n", strlen("Inside handler function\n"));
+}
+
+
 
 int main() {
-    printf("Hello, World!\n");
 
 
-    List * listptr = list_constructor();
+    /* SIGINT HANDLING */
+    struct sigaction act;
+    memset(&act, 0, sizeof act);
+    act.sa_handler = sig_handler;
 
-    Hashtable * diseases = hashtable_constructor(2, 1);
-    Hashtable * countries = hashtable_constructor(3, 1);
+    /*make system call restart if they fail cause of signal */
+    /*In case of some functions like select this isnt true */
+    act.sa_flags = SA_RESTART;
+    sigaction(SIGINT, &act, NULL);
 
-    read_file("/mnt/c/Users/Bill/Desktop/Github/System-programming/Syspro/patientfile.txt", listptr,diseases, countries );
 
-    /*
-    char buf [100] = "globalDiseaseStats 10-2-2001 11-02-2003";
-    global_diseases_stats(buf, diseases );
+    /*read data from directory */
+    int number_directories;
+    char ** directories = open_directories("hospitals_data", &number_directories);
+    /*Create processes */
+    pid_t id;
 
-    char buf2[100] = "diseaseFrequency SARS-12 Greece 10-2-2001 11-02-2005";
-    disease_frequency(buf2, diseases);
+    /*Pipes to send data to children */
+    int pipe_send_data[number_directories][2];
+    /*Pipes to receive data from children */
+    int pipe_receive_data[number_directories][2];
 
-    char buf3[512] = "insertPatientRecord 38 larry fofofo SARS-12 Greece 15-02-2003 -";
-    insert_patient_record(buf3,  diseases,  countries);
-*/
-    command_prompt(diseases, countries);
+    /*Create pipes */
+    for (int i=0; i<number_directories; i++)
+        if (pipe(pipe_send_data[i]) ==-1 || pipe(pipe_receive_data[i])==-1 )
+        {
+            perror("Pipe");
+            exit(2);
+        }
 
-    hashtable_destructor(diseases);
-    hashtable_destructor(countries);
-    list_destructor(listptr);
+    for (int i=0; i<number_directories; i++)
+    {
+        id = fork();
+        if(id ==-1)
+            perror("Fork error");
+
+        /*Child overwrites its self with a new process */
+        if(id==0)
+        {
+            char arg1[15];
+            char arg2[15];
+            sprintf(arg1,"%d",pipe_send_data[i][READ]);
+            sprintf(arg2,"%d",pipe_receive_data[i][WRITE]);
+
+            char * args[]= {"./child",arg1,arg2,NULL};
+            execv(args[0], args);
+
+        }
+        else
+        {
+            close(pipe_send_data[i][READ]);
+            close(pipe_receive_data[i][WRITE]);
+        }
+
+    }
+    process_synchronization(pipe_send_data,pipe_receive_data,    directories,number_directories);
+
+    for (int i=0; i<number_directories; i++)
+        free(directories[i]);
+    free(directories);
+
+    for (int i=0; i<number_directories; i++)
+    {
+        close(pipe_send_data[i][WRITE]);
+        close(pipe_receive_data[i][READ]);
+    }
+
+
+    int status;
+    while(1)
+    {
+
+        id = waitpid(0, &status, WNOHANG);
+        if(id >0 )
+            printf("Process %d exited with code %d\n", id, WEXITSTATUS ( status ));
+        else if (id == 0 )
+            printf("Still waiting for children to exit\n");
+        else
+            break;
+        sleep(1);
+
+    }
+
+
+
+
 
 }
+
+
+
+
+

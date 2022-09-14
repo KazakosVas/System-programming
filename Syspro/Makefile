@@ -1,7 +1,9 @@
-CC = gcc -g -Wall
+CC = gcc -g 
 
-diseaseMonitor: main.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o
-	$(CC) -o diseaseMonitor main.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o
+all: diseaseMonitor child
+
+diseaseMonitor: main.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o process_synchronization.o
+	$(CC) -o diseaseMonitor main.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o process_synchronization.o
 
 main.o: main.c
 	$(CC) -c main.c
@@ -24,8 +26,17 @@ Hashtable.o: Hashtable.c
 StatFunctions.o: StatFunctions.c
 	$(CC) -c StatFunctions.c
 
+process_synchronization.o: process_synchronization.c
+	$(CC) -c process_synchronization.c
+
+child: child.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o process_synchronization.o
+	$(CC) -o child child.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o process_synchronization.o
+
+child.o: child.c 
+	$(CC) -c child.c
+
 .PHONY: clean
 
 clean:
-	rm -f diseaseMonitor main.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o
+	rm -f diseaseMonitor main.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o child child.o process_synchronization.o
 	clear

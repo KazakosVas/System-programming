@@ -140,11 +140,14 @@ void patient_destructor(Patient * patient)
 
 }
 
-void print_patient(Patient * patient)
+void * print_patient(Patient * patient)
 {
-    printf("Patient-> Id: %d, Name: %s, Surname: %s, Disease: %s, Country: %s, Entry: %s, Exit: %s\n\n",patient->id,
+    void * answer = malloc(10000);
+    snprintf(answer,10000,"Patient-> Id: %d, Name: %s, Surname: %s, Disease: %s, Country: %s, Entry: %s, Exit: %s\n\n",patient->id,
            patient->name, patient->surname, patient->disease, patient->country, patient->entry_date->date_str,
            patient->exit_date->date_str);
+
+    return answer;
 }
 
 

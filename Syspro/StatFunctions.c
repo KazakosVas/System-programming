@@ -5,17 +5,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "patient.h"
 #include "list.h"
-
 #include "RBTree.h"
-
 #include "Hashtable.h"
 #include "HelpFunctions.h"
 
 #include "StatFunctions.h"
-void global_diseases_stats (char * command, Hashtable * diseases)
+
+void * global_diseases_stats (char * command, Hashtable * diseases)
 {
 
     char * date1 = command+ strlen("globalDiseaseStats")+1;
@@ -24,12 +24,16 @@ void global_diseases_stats (char * command, Hashtable * diseases)
     date1 = strtok( date1, " ");
     date2 = strtok(NULL, " ");
 
+    char * answer = malloc(10000);
+    int bytes=0;
+    int reallocs =1;
+
     if(date1!=NULL && date2!=NULL)
     {
         Date * new_date1 = date_contructor(date1);
         Date * new_date2 = date_contructor(date2);
 
-        printf("Dates: %s  %s\n",new_date1->date_str, new_date2->date_str);
+        bytes = bytes + snprintf(answer+bytes,3000,"Dates: %s  %s\n",new_date1->date_str, new_date2->date_str);
 
         for (int i=0; i<diseases->size; i++)
         {
@@ -38,17 +42,25 @@ void global_diseases_stats (char * command, Hashtable * diseases)
             {
                 int patients = global_diseases_stats_rbt(((Disease * )temp->data)->disease_tree, ((Disease * )temp->data)->disease_tree->root,
                                                          new_date1, new_date2 ,NULL, GLOBAL_DISEASE_STATS);
-                printf("Disease: %s, Patients: %d\n",((Disease * )temp->data)->disease, patients );
+                bytes = bytes + snprintf(answer+bytes,3000,"Disease: %s, Patients: %d\n",((Disease * )temp->data)->disease, patients );
+                if(bytes > reallocs*7000)
+                {
+                    reallocs = reallocs+1;
+                    answer = realloc(answer, 10000*reallocs);
+                }
+
                 temp= temp->next;
             }
         }
 
-
-
+        date_destructor(new_date1);
+        date_destructor(new_date2);
     }
+
+    return answer;
 }
 
-void disease_frequency(char * command, Hashtable * diseases)
+void * disease_frequency(char * command, Hashtable * diseases)
 {
     char * virus_name, * country, * date1, *date2;
 
@@ -62,7 +74,14 @@ void disease_frequency(char * command, Hashtable * diseases)
     Date * new_date1 = date_contructor(date1);
     Date * new_date2 = date_contructor(date2);
 
-    printf("Dates: %s  %s\n",new_date1->date_str, new_date2->date_str);
+    char * answer = malloc(10000);
+    int bytes=0;
+    int reallocs =1;
+
+
+
+
+    bytes = bytes + snprintf(answer+bytes,3000,"Dates: %s  %s\n",new_date1->date_str, new_date2->date_str);
 
     int hash_val = hash1(virus_name, diseases->size);
     Lnode * temp;
@@ -73,11 +92,20 @@ void disease_frequency(char * command, Hashtable * diseases)
         {
             int patients = global_diseases_stats_rbt(((Disease * )temp->data)->disease_tree, ((Disease * )temp->data)->disease_tree->root,
                                                      new_date1, new_date2 ,country, DISEASE_FREQUENCY_COUNTRY);
-            printf("Country:%s, Disease: %s, Patients: %d\n",country, ((Disease * )temp->data)->disease, patients );
+            bytes = bytes + snprintf(answer+bytes,3000,"Country:%s, Disease: %s, Patients: %d\n",country, ((Disease * )temp->data)->disease, patients );
+
+            if(bytes > reallocs*7000)
+            {
+                reallocs = reallocs+1;
+                answer = realloc(answer, 10000*reallocs);
+            }
+
         }
 
         temp = temp->next;
     }
+
+    return answer;
 
 
 
@@ -135,13 +163,11 @@ int global_diseases_stats_rbt(RBTree * tree, struct RBnode * recursion_root, Dat
 }
 
 
-void insert_patient_record(char * command, Hashtable * diseases, Hashtable * countries)
+void * insert_patient_record(char * command, Hashtable * diseases, Hashtable * countries, List * list_ptr)
 {
     char ** patient_data = malloc(sizeof (char * )* 7);
     for(int i =0; i<7; i++)
         patient_data[i] = malloc(512);
-
-
 
 
     command = command + strlen("insertPatientRecord")+1;
@@ -149,58 +175,87 @@ void insert_patient_record(char * command, Hashtable * diseases, Hashtable * cou
 
     split_line(patient_data, command);
     Patient * newPatient = patient_constructor(patient_data);
-    print_patient(newPatient);
+
+    char * answer = (char *) print_patient(newPatient);
     hash_table_insert(diseases, countries, newPatient);
-
-
+    append(list_ptr, node_constructor((Patient *) newPatient, 1));
 
 
     for (int i=0; i<7 ;i++)
         free(patient_data[i]);
     free(patient_data);
+
+    return answer;
+}
+
+void print_instructions()
+{
+    printf("Wrong command!\n");
+    printf("Correct commands examples:\n");
+    printf("Command1: globalDiseaseStats 10-2-2001 11-02-2003\n");
+    printf("Command2: diseaseFrequency SARS-12 Greece 10-2-2001 11-02-2009\n");
+    printf("Command3: insertPatientRecord 38 larry fofofo SARS-12 Greece 15-02-2003 -\n");
+    printf("Command4: End\n");
+}
+
+char * answer_command(char * command, int type, Hashtable * Diseases, Hashtable * Countries, List * list_ptr)
+{
+    sleep(rand()%3);
+
+
+    if(type==1)
+    {
+        char * answer = (char * ) global_diseases_stats(command, Diseases);
+        return answer;
+    }
+    if(type ==2)
+    {
+        char * answer = (char * ) disease_frequency(command, Diseases);
+        return answer;
+    }
+    if (type ==3)
+    {
+        char * answer = (char * ) insert_patient_record(command, Diseases, Countries, list_ptr);
+        return answer;
+    }
+    if(type ==4)
+        return NULL;
 }
 
 
-void command_prompt(Hashtable * diseases, Hashtable * countries)
+int analyze_command(char * command)
 {
-
-
-    while(1) {
-
-        char *command = malloc(512);
-        fgets(command, 512, stdin);
-        command[strlen(command) - 1] = '\0';
-
-        command = strtok(command, " ");
-        if(command ==NULL)
-            continue;
+    command = strtok(command, " ");
+    if(command ==NULL)
+        return 5;
 
         if (strcmp(command, "globalDiseaseStats") == 0)
-            global_diseases_stats(command, diseases);
-        else if (strcmp(command, "diseaseFrequency")==0 )
-            disease_frequency(command, diseases);
-        else if (strcmp(command, "insertPatientRecord")==0 )
-            insert_patient_record(command, diseases, countries);
-        else if(strcmp(command, "End")==0)
         {
-            free(command);
-            return;
+            command[strlen(command)]=' ';
+            return 1;
+        }
+        else if (strcmp(command, "diseaseFrequency") == 0)
+        {
+            command[strlen(command)]=' ';
+
+            return 2;
+        }
+        else if (strcmp(command, "insertPatientRecord") == 0)
+        {
+            command[strlen(command)]=' ';
+
+            return 3;
+        }
+        else if (strcmp(command, "End") == 0)
+        {
+            return 4;
         }
         else
         {
-            printf("Wrong command!\n");
-            printf("Correct commands examples:\n");
-            printf("Command1: globalDiseaseStats 10-2-2001 11-02-2003\n");
-            printf("Command2: diseaseFrequency SARS-12 Greece 10-2-2001 11-02-2009\n");
-            printf("Command3: insertPatientRecord 38 larry fofofo SARS-12 Greece 15-02-2003 -\n");
-            printf("Command4: End\n");
-
+            print_instructions();
+            return 5;
         }
 
-        free(command);
-
-    }
-
-
-
 }
+
+

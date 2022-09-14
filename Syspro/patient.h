@@ -53,7 +53,7 @@ typedef struct Patient{
 }Patient;
 
 Patient * patient_constructor(char ** patient_data);
-void print_patient(Patient * patient);
+void * print_patient(Patient * patient);
 
 void patient_destructor(Patient * patient);
 
