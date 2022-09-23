@@ -13,7 +13,6 @@ void * global_diseases_stats (char * command, Hashtable * diseases);
 int global_diseases_stats_rbt(RBTree * tree, struct RBnode * recursion_root, Date * date1, Date* date2,char * country ,int flag);
 void * disease_frequency(char * command, Hashtable * diseases);
 void * insert_patient_record(char * command, Hashtable * diseases, Hashtable * countries, List * list_ptr);
-int analyze_command(char * command);
 char * answer_command(char * command, int type, Hashtable * Diseases, Hashtable * Countries, List * list_ptr);
 
 

@@ -1,42 +1,33 @@
-CC = gcc -g 
+CC = gcc -g -Wall
+LIBS = -lpthread
+SUBDIRS = process_synchronize utils executables modules
+CLEANDIRS = $(SUBDIRS:%=clean-%)
 
-all: diseaseMonitor child
+all: subdirs client server child backend_system
 
-diseaseMonitor: main.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o process_synchronization.o
-	$(CC) -o diseaseMonitor main.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o process_synchronization.o
+subdirs:
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir; \
+	done
 
-main.o: main.c
-	$(CC) -c main.c
+client: executables/whoClient.o process_synchronize/network.o process_synchronize/process_synchronization.o utils/HelpFunctions2.o utils/whoClientUtils.o
+	$(CC) -o client executables/whoClient.o process_synchronize/network.o process_synchronize/process_synchronization.o utils/HelpFunctions2.o utils/whoClientUtils.o $(LIBS)
 
-patient.o: patient.c
-	$(CC) -c patient.c
+server: executables/whoServer.o process_synchronize/network.o process_synchronize/process_synchronization.o utils/HelpFunctions2.o utils/whoServerUtils.o
+	$(CC) -o server executables/whoServer.o process_synchronize/network.o process_synchronize/process_synchronization.o utils/HelpFunctions2.o utils/whoServerUtils.o $(LIBS)
 
-HelpFunctions.o: HelpFunctions.c
-	$(CC) -c HelpFunctions.c
+child: executables/child.o utils/patient.o utils/HelpFunctions.o modules/list.o modules/RBTree.o modules/Hashtable.o modules/StatFunctions.o process_synchronize/process_synchronization.o process_synchronize/network.o utils/HelpFunctions2.o
+	$(CC) -o child executables/child.o utils/patient.o utils/HelpFunctions.o modules/list.o modules/RBTree.o modules/Hashtable.o modules/StatFunctions.o process_synchronize/process_synchronization.o process_synchronize/network.o utils/HelpFunctions2.o
 
-list.o: list.c
-	$(CC) -c list.c
+backend_system: executables/backend_system.o utils/patient.o utils/HelpFunctions.o modules/list.o modules/RBTree.o modules/Hashtable.o modules/StatFunctions.o process_synchronize/process_synchronization.o process_synchronize/network.o utils/HelpFunctions2.o
+	$(CC) -o backend_system executables/backend_system.o utils/patient.o utils/HelpFunctions.o modules/list.o modules/RBTree.o modules/Hashtable.o modules/StatFunctions.o process_synchronize/process_synchronization.o process_synchronize/network.o utils/HelpFunctions2.o
 
-RBTree.o: RBTree.c
-	$(CC) -c RBTree.c
-
-Hashtable.o: Hashtable.c
-	$(CC) -c Hashtable.c
-
-StatFunctions.o: StatFunctions.c
-	$(CC) -c StatFunctions.c
-
-process_synchronization.o: process_synchronization.c
-	$(CC) -c process_synchronization.c
-
-child: child.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o process_synchronization.o
-	$(CC) -o child child.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o process_synchronization.o
-
-child.o: child.c 
-	$(CC) -c child.c
 
 .PHONY: clean
 
-clean:
-	rm -f diseaseMonitor main.o patient.o HelpFunctions.o list.o RBTree.o Hashtable.o StatFunctions.o child child.o process_synchronization.o
+clean: $(CLEANDIRS)
+$(CLEANDIRS): 
+	$(MAKE) -C $(@:clean-%=%) clean
+
+	rm -f client server child backend_system
 	clear

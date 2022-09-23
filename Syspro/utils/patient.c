@@ -5,13 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "patient.h"
-#include "list.h"
-
-#include "RBTree.h"
-
-#include "Hashtable.h"
-#include "HelpFunctions.h"
+#include "../include/patient.h"
+#include "../include/list.h"
+#include "../include/RBTree.h"
+#include "../include/Hashtable.h"
+#include "../include/HelpFunctions.h"
 
 
 Date * date_contructor(char * date )

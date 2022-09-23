@@ -7,13 +7,17 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "patient.h"
-#include "list.h"
-#include "RBTree.h"
-#include "Hashtable.h"
-#include "HelpFunctions.h"
+#include "../include/patient.h"
+#include "../include/list.h"
+#include "../include/RBTree.h"
+#include "../include/Hashtable.h"
+#include "../include/HelpFunctions.h"
+#include "../include/StatFunctions.h"
 
-#include "StatFunctions.h"
+
+/*--------------------------This file contains functions that help us find statistics ------------------------------------*/
+/*--------------------------and information about diseases by analysing the data structures ------------------------------------*/
+
 
 void * global_diseases_stats (char * command, Hashtable * diseases)
 {
@@ -121,7 +125,7 @@ int global_diseases_stats_rbt(RBTree * tree, struct RBnode * recursion_root, Dat
         if (recursion_root == tree->NIL)
             return 0;
 
-        int num;
+        int num=0;
         if (date_compare(date1, recursion_root->patient->entry_date) <= 0)
             num = global_diseases_stats_rbt(tree, recursion_root->left, date1, date2, country, flag);
 
@@ -140,7 +144,7 @@ int global_diseases_stats_rbt(RBTree * tree, struct RBnode * recursion_root, Dat
         if (recursion_root == tree->NIL)
             return 0;
 
-        int num;
+        int num=0;
         if (date_compare(date1, recursion_root->patient->entry_date) <= 0)
             num = global_diseases_stats_rbt(tree, recursion_root->left, date1, date2, country, flag);
 
@@ -156,9 +160,9 @@ int global_diseases_stats_rbt(RBTree * tree, struct RBnode * recursion_root, Dat
 
         return num;
 
-
-
     }
+    printf("If control reaches here something went really bad\n");
+    return 1;
 
 }
 
@@ -188,15 +192,6 @@ void * insert_patient_record(char * command, Hashtable * diseases, Hashtable * c
     return answer;
 }
 
-void print_instructions()
-{
-    printf("Wrong command!\n");
-    printf("Correct commands examples:\n");
-    printf("Command1: globalDiseaseStats 10-2-2001 11-02-2003\n");
-    printf("Command2: diseaseFrequency SARS-12 Greece 10-2-2001 11-02-2009\n");
-    printf("Command3: insertPatientRecord 38 larry fofofo SARS-12 Greece 15-02-2003 -\n");
-    printf("Command4: End\n");
-}
 
 char * answer_command(char * command, int type, Hashtable * Diseases, Hashtable * Countries, List * list_ptr)
 {
@@ -220,42 +215,12 @@ char * answer_command(char * command, int type, Hashtable * Diseases, Hashtable 
     }
     if(type ==4)
         return NULL;
-}
 
-
-int analyze_command(char * command)
-{
-    command = strtok(command, " ");
-    if(command ==NULL)
-        return 5;
-
-        if (strcmp(command, "globalDiseaseStats") == 0)
-        {
-            command[strlen(command)]=' ';
-            return 1;
-        }
-        else if (strcmp(command, "diseaseFrequency") == 0)
-        {
-            command[strlen(command)]=' ';
-
-            return 2;
-        }
-        else if (strcmp(command, "insertPatientRecord") == 0)
-        {
-            command[strlen(command)]=' ';
-
-            return 3;
-        }
-        else if (strcmp(command, "End") == 0)
-        {
-            return 4;
-        }
-        else
-        {
-            print_instructions();
-            return 5;
-        }
+    return NULL;
 
 }
+
+
+
 
 

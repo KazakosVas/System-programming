@@ -5,15 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "patient.h"
-#include "list.h"
+#include "../include/patient.h"
+#include "../include/list.h"
+#include "../include/RBTree.h"
+#include "../include/Hashtable.h"
+#include "../include/HelpFunctions.h"
 
-#include "RBTree.h"
-
-#include "Hashtable.h"
-#include "HelpFunctions.h"
-
-
+/*--------------------------List Node Constructor ------------------------------------*/
 Lnode * node_constructor(void  * data, int type)
 {
     Lnode * new_node = malloc(sizeof(Lnode));
@@ -23,6 +21,9 @@ Lnode * node_constructor(void  * data, int type)
 
     return new_node;
 }
+
+
+/*--------------------------List Node Destructor ------------------------------------*/
 void lnode_data_destructor(Lnode * node)
 {
     if (node->type == 1)
@@ -35,7 +36,7 @@ void lnode_data_destructor(Lnode * node)
     free(node);
 }
 
-
+/*--------------------------List  Constructor ------------------------------------*/
 List * list_constructor()
 {
 
@@ -47,6 +48,7 @@ List * list_constructor()
     return new_list;
 }
 
+/*--------------------------Append element to list -------------------------------*/
 void append(List * list_ptr, Lnode * node_ptr)
 {
     if(list_ptr->start == NULL)
@@ -62,6 +64,7 @@ void append(List * list_ptr, Lnode * node_ptr)
 
 }
 
+/*--------------------------List Destructor ------------------------------------*/
 void list_destructor (List * list_ptr)
 {
     Lnode * temp = list_ptr->start;
@@ -78,6 +81,7 @@ void list_destructor (List * list_ptr)
 
 }
 
+/*--------------------------Function that checks if element str is placed on list --------=-=-----*/
 void *  list_exists(List * list_ptr, char * str)
 {
     Lnode * temp = list_ptr->start;
@@ -106,5 +110,6 @@ void *  list_exists(List * list_ptr, char * str)
         }
         return  0;
     }
-    printf("IF here fked up\n\n");
+    printf("If control reaches here something went really bad\n\n");
+    return 0;
 }

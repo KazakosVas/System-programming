@@ -22,10 +22,12 @@ typedef struct RBTree{
 
 RBTree * RBT_constructor();
 struct RBnode * new_node(Patient * patient);
+
 void RBT_left_rotate(struct RBTree *T, struct RBnode *x);
 void RBT_right_rotate(struct RBTree *T, struct RBnode *y);
 void RBT_insert_fixup(struct RBTree *Tree, struct RBnode *z);
 void RBT_insert(struct RBTree *Tree, struct RBnode *z);
+
 void RBT_destructor(struct RBTree * tree, struct RBnode *recursion_root);
 
 

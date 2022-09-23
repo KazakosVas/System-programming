@@ -10,14 +10,12 @@
 #include <dirent.h>
 #include <errno.h>
 
-#include "patient.h"
-#include "list.h"
+#include "../include/patient.h"
+#include "../include/list.h"
+#include "../include/RBTree.h"
+#include "../include/Hashtable.h"
+#include "../include/HelpFunctions.h"
 
-#include "RBTree.h"
-
-#include "Hashtable.h"
-#include "HelpFunctions.h"
-#include "process_synchronization.h"
 
 
 void split_line (char ** split_line,  char * line)
@@ -144,22 +142,5 @@ char **  open_directories(char * path, int * number_files)
 
 
 
-void * command_prompt()
-{
-    char *  error;
-    printf("Give command:");
-
-    char *command = malloc(512);
-    error = fgets(command, 512, stdin);
-    if(error ==NULL)
-        printf("FOUND the bufg\n");
-
-    command[strlen(command) - 1] = '\0';
-
-    return command;
 
 
-
-
-
-}
