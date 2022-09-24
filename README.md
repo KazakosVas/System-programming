@@ -5,22 +5,22 @@ This project was created for System-programming class. The project was divided i
 
 In the **1st task**, I implemented a set of data structures (Hash tables, red-black trees) to answer queries in a large dataset of records. The dataset is about monitoring the statistics of hospitals.
 
-In the **2nd task**,  I implemented a distributed multi-process system that answers queries about viruses and diseases. A parent process is creating worker processes that handle the questions. The parent is forwarding the questions through pipes and receives answers through pipes and select syscall. Finally, i do some signal handing when having functions like read write and select that may fail when a signal is caught.
+In the **2nd task**,  I implemented a distributed multi-process system that answers queries about viruses and diseases. A parent process is creating worker processes that handle the questions. The parent forwards the questions and receives answers through pipes and select syscall. Finally, I do some signal handing when having functions like read, write and select that may fail when a signal is caught.
 
 In the **3rd task**, I implemented:
 
-1. A **multi-threaded client**, in which each thread is sending a request to the server.
+1. A **multi-threaded client**, in which each thread sends a request to the server.
 
 
-2. A **multi-threaded server**, in which each thread plays the role of consumer or the role of producer. Producer thread accepts requests over the network and put them in a "circular" buffer.
-Consumer threads wait for a request to be accepted and then forward the request to a backend system over the network and send the answer back to Client.  Also the server does signal handling in a multi-threaded context.
+2. A **multi-threaded server**, in which each thread plays the role of consumer or producer. Producer thread accepts requests over the network and places them in a "circular" buffer.
+Consumer threads wait for a request to be accepted and then forward the request to a backend system over the network and send the answer back to Client.  Also, the server does signal handling in a multi-threaded context.
 
 
 3. A multi-process backend system was created in the second task but it was updated to answer requests over the network.
 
 ## __Complile & Execute__
 In the first directory:
--  Compile all programms: ```make```
+-  Compile all programs: ```make```
 
 Execute in 3 different cells shells
 
