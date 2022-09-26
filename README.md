@@ -25,9 +25,9 @@ In the first directory:
 - Execute:
 
 ```
-bill@LAPTOP-V9A2M01E:/Github/System-programming$ ./backend_system
+bill@LAPTOP-V9A2M01E:/Github/System-programming$ ./backend_system 123
 bind: Permission denied
-Port 1 was not available. System gave you port 43609
+Port 123 was not available. System gave you port 38371
 ```
 ```
 bill@LAPTOP-V9A2M01E:/Github/System-programming$ ./server -SP 1999 -system--name LAPTOP-V9A2M01E -system--port 43609
@@ -37,6 +37,7 @@ bill@LAPTOP-V9A2M01E:/Github/System-programming$ ./client -SP 1999 -server--name
 ```
 
 
+![](./Images/image1.png?)
 
 
 
