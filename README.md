@@ -22,7 +22,7 @@ Consumer threads wait for a request to be accepted and then forward the request 
 In the first directory:
 -  Compile all programs: ```make```
 
-Execute in 3 different cells shells
+- Execute:
 
 ```
 bill@LAPTOP-V9A2M01E:/Github/System-programming$ ./backend_system

@@ -27,6 +27,7 @@
 
 
 int flag_close_system;
+int server_sock;
 
 /*-------------Function called from parent to communicate with  children processes-------------*/
 void process_synchronization(int send_data[][2], int receive_data[][2], char **directories, int num_directories, int port) {
@@ -39,19 +40,23 @@ void process_synchronization(int send_data[][2], int receive_data[][2], char **d
 
     /*Initialize server variable */
     server *new_server = initialize_server(port);
-
+    server_sock = new_server->sock;
 
     while (1) {
 
         if (flag_close_system ==1 ){
 
             for (int i = 0; i < num_directories; i++)
+                //printf("%d\n", send_data[i][WRITE]);
                send_message(send_data[i][WRITE], strlen(buf) + 1, buf);
             break;
 
         }
         /*Accept new connection over the network*/
         new_server->newsock = accept(new_server->sock, new_server->clientptr, &new_server->clientlen);
+        if (new_server->newsock == -1)
+            if(errno ==9)
+                continue;
 
         /*Get request */
         void *command = receive_message(new_server->newsock, &size);

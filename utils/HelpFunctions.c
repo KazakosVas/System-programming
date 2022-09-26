@@ -63,7 +63,6 @@ void read_file(char * path, List * listptr, Hashtable * diseases, Hashtable * co
             exit(2);
         }
 
-
         split_line(patient_data, *line_ptr);
         Patient * newPatient = patient_constructor(patient_data);
 

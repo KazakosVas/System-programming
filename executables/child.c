@@ -59,6 +59,7 @@ int main(int argc, char *argv[]) {
         read_file(files[i], list_ptr, Diseases, Countries);
 
 
+
     while (1) {
 
         char *command = (char *) receive_message(atoi(argv[1]), &size);

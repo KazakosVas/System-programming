@@ -22,10 +22,13 @@
 #include "../include/StatFunctions.h"
 
 extern int flag_close_system;
+extern int server_sock;
+
 
 void SIGINT_HANDLER(int signum) {
 
     write(1, "Inside SIGINT HANDLER function\n", strlen("Inside SIGINT HANDLER function\n"));
+    close(server_sock);
     flag_close_system = 1;
 }
 
@@ -46,8 +49,20 @@ void signal_handling(int signal, void (*handler)()) {
 }
 
 
-int main() {
+int main(int argc, char * argv[]) {
 
+    int system_port;
+    if (argc !=2)
+    {
+        printf("Correct way to execute:\n./backend_system <PORT>\n");
+        exit(1);
+    }
+    system_port = atoi(argv[1]);
+    if (system_port==0)
+    {
+        printf("Correct way to execute:\n./backend_system <PORT> ");
+        exit(1);
+    }
     signal_handling(SIGINT, SIGINT_HANDLER);
     signal_handling(SIGPIPE, SIGPIPE_HANDLER);
 
@@ -98,7 +113,7 @@ int main() {
 
     }
 
-    process_synchronization(pipe_send_data, pipe_receive_data, directories, number_directories, 1);
+    process_synchronization(pipe_send_data, pipe_receive_data, directories, number_directories, system_port);
 
     for (int i = 0; i < number_directories; i++)
         free(directories[i]);
